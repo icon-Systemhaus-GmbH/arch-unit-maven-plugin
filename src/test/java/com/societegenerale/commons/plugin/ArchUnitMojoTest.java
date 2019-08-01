@@ -1,6 +1,7 @@
 package com.societegenerale.commons.plugin;
 
 import java.io.StringReader;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -80,7 +81,7 @@ public class ArchUnitMojoTest {
   @Test
   public void shouldFailWhenNoRuleConfigured() throws Exception {
 
-    ArchUnitMojo mojo = (ArchUnitMojo) mojoRule.configureMojo(archUnitMojo, pluginConfiguration);
+    ArchUnitMojo mojo = (ArchUnitMojo) mojoRule.lookupMojo("test",pomWithNoRule);;
 
     assertThatExceptionOfType(MojoFailureException.class)
         .isThrownBy(mojo::execute)
@@ -90,13 +91,7 @@ public class ArchUnitMojoTest {
   @Test
   public void shouldExecuteSinglePreconfiguredRule() throws Exception {
 
-    pluginConfiguration.getChild("projectPath").setValue("./target/aut-target/test-classes/com/societegenerale/aut/test");
-
-    // add single rule
-    PlexusConfiguration preConfiguredRules = pluginConfiguration.getChild("rules").getChild("preConfiguredRules");
-    preConfiguredRules.addChild("rule", NoPowerMockRuleTest.class.getName());
-
-    ArchUnitMojo mojo = (ArchUnitMojo) mojoRule.configureMojo(archUnitMojo, pluginConfiguration);
+    ArchUnitMojo mojo = (ArchUnitMojo) mojoRule.lookupMojo("arch-test","src/test/resources/test-pom.xml");
 
     executeAndExpectViolations(mojo,
         expectRuleFailure("classes should not use Powermock")
@@ -105,6 +100,7 @@ public class ArchUnitMojoTest {
 
   @Test
   public void shouldFailWronglyDefinedConfigurableRule() throws Exception {
+    List<String> testClasspathElements = mavenProject.getTestClasspathElements();
     PlexusConfiguration configurableRule = new DefaultPlexusConfiguration("configurableRule");
 
     String missingCheck = "notThere";

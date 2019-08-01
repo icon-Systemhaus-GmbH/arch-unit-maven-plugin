@@ -6,6 +6,8 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import java.nio.file.Path;
+
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 /**
@@ -24,8 +26,8 @@ public class NoJunitAssertRuleTest implements ArchRuleTest {
     private static final String PACKAGE_SEPARATOR = ".";
 
     @Override
-    public void execute(String path) {
-        classes().should(notUseJunitAssertRule()).check(ArchUtils.importAllClassesInPackage(path, TEST_CLASSES_FOLDER));
+    public void execute(Path output, Path testOutput) {
+        classes().should(notUseJunitAssertRule()).check(ArchUtils.importAllClassesInPackage(testOutput));
     }
 
     protected static ArchCondition<JavaClass> notUseJunitAssertRule() {

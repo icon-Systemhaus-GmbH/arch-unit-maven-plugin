@@ -8,6 +8,8 @@ import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.junit.runner.RunWith;
 
+import java.nio.file.Path;
+
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 /**
@@ -20,8 +22,8 @@ public class NoPowerMockRuleTest implements ArchRuleTest {
     protected static final String POWER_MOCK_VIOLATION_MESSAGE = "Favor Mockito and proper dependency injection - ";
 
     @Override
-    public void execute(String path) {
-        classes().should(notUsePowerMock()).check(ArchUtils.importAllClassesInPackage(path, TEST_CLASSES_FOLDER));
+    public void execute(Path output, Path testOutput) {
+        classes().should(notUsePowerMock()).check(ArchUtils.importAllClassesInPackage(testOutput));
     }
 
     public static ArchCondition<JavaClass> notUsePowerMock() {

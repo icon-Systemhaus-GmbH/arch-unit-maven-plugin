@@ -9,6 +9,7 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
@@ -26,8 +27,8 @@ public class NoJodaTimeRuleTest implements ArchRuleTest {
   protected static final String NO_JODA_VIOLATION_MESSAGE = "Use Java8 Date API instead of Joda library";
 
   @Override
-  public void execute(String path) {
-    classes().should(notUseJodaTime()).check(ArchUtils.importAllClassesInPackage(path, SRC_CLASSES_FOLDER));
+  public void execute(Path output, Path testOutput) {
+    classes().should(notUseJodaTime()).check(ArchUtils.importAllClassesInPackage(output));
   }
 
   protected static ArchCondition<JavaClass> notUseJodaTime() {

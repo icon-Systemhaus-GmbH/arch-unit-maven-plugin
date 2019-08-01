@@ -8,6 +8,8 @@ import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.junit.Ignore;
 
+import java.nio.file.Path;
+
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 /**
@@ -17,8 +19,9 @@ public class NoTestIgnoreWithoutCommentRuleTest implements ArchRuleTest  {
 
     protected static final String NO_JUNIT_IGNORE_WITHOUT_COMMENT_VIOLATION_MESSAGE = "Tests shouldn't been ignored without providing a comment explaining why";
 
-    public void execute(String path)  {
-        classes().should(notBeIgnoredWithoutAComment()).check(ArchUtils.importAllClassesInPackage(path, TEST_CLASSES_FOLDER));
+    @Override
+    public void execute(Path output, Path testOutput)  {
+        classes().should(notBeIgnoredWithoutAComment()).check(ArchUtils.importAllClassesInPackage(testOutput));
     }
 
     public static ArchCondition<JavaClass> notBeIgnoredWithoutAComment() {

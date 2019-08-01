@@ -4,6 +4,8 @@ import com.societegenerale.commons.plugin.utils.ArchUtils;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import org.junit.Test;
 
+import java.nio.file.Paths;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -13,9 +15,7 @@ public class ArchUtilsTest {
 
 	@Test
 	public void shouldLoadClassesFromGivenPackage() {
-		JavaClasses classes = ArchUtils.importAllClassesInPackage("./target/classes/", "com/societegenerale/commons/plugin/model");
-
-				
+		JavaClasses classes = ArchUtils.importAllClassesInPackage(Paths.get("./target/classes/com/societegenerale/commons/plugin/model"));
 
 		long noOfClassesInPackage = classes.stream().count();
 
@@ -24,7 +24,7 @@ public class ArchUtilsTest {
 
 	@Test
 	public void shouldLoadAllClassesWhenGivenPakageDoesntExist() {
-		JavaClasses classes = ArchUtils.importAllClassesInPackage("./target/classes", "someNotExistingFolder");
+		JavaClasses classes = ArchUtils.importAllClassesInPackage(Paths.get("./target/classes/someNotExistingFolder"));
 
 		long noOfClasses = classes.stream().filter(it -> !it.isInnerClass()).count();
 

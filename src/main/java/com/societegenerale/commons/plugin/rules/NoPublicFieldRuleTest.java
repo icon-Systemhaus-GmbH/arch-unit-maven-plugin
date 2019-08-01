@@ -5,6 +5,8 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 import com.societegenerale.commons.plugin.utils.ArchUtils;
 import com.tngtech.archunit.lang.ArchRule;
 
+import java.nio.file.Path;
+
 /**
  * It is important to respect encapsulation.
  * 
@@ -16,12 +18,12 @@ public class NoPublicFieldRuleTest implements ArchRuleTest {
 	public static final String NO_PUBLIC_FIELD_VIOLATION_MESSAGE = "you should respect encapsulation";
 
 	@Override
-	public void execute(String path) {
+	public void execute(Path output, Path testOutput) {
 
 		ArchRule rulePublic = fields().that().areNotStatic().or().areNotFinal().should().notBePublic()
 				.because(NO_PUBLIC_FIELD_VIOLATION_MESSAGE);
 
-		rulePublic.check(ArchUtils.importAllClassesInPackage(path, ""));
+		rulePublic.check(ArchUtils.importAllClassesInPackage(output));
 
 	}
 

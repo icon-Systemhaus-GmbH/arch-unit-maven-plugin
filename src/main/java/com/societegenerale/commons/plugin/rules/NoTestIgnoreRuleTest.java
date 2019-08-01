@@ -8,6 +8,8 @@ import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 import org.junit.Ignore;
 
+import java.nio.file.Path;
+
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 /**
@@ -17,8 +19,9 @@ public class NoTestIgnoreRuleTest implements ArchRuleTest  {
 
   protected static final String NO_JUNIT_IGNORE_VIOLATION_MESSAGE = "Tests shouldn't been ignored";
 
-  public void execute(String path) {
-    classes().should(notBeenIgnore()).check(ArchUtils.importAllClassesInPackage(path, TEST_CLASSES_FOLDER));
+  @Override
+  public void execute(Path output, Path testOutput) {
+    classes().should(notBeenIgnore()).check(ArchUtils.importAllClassesInPackage(testOutput));
   }
 
   public static ArchCondition<JavaClass> notBeenIgnore() {

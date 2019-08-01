@@ -2,27 +2,24 @@ package com.societegenerale.commons.plugin.rules;
 
 import org.junit.Test;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import static org.assertj.core.api.Assertions.assertThatCode;
 
 public class NoPublicFieldRuleTestTest {
 
-	String pathObjectWithNoPublicField = "./target/aut-target/test-classes/com/societegenerale/aut/test/ObjectWithNoNonStaticPublicField.class";
+    private Path output = Paths.get("./target/aut-target/classes/com/societegenerale/aut/main");
+    private Path testOutput = Paths.get("./target/aut-target/test-classes/com/societegenerale/aut/test");
 
-	String pathObjectWithPublicField = "./target/aut-target/test-classes/com/societegenerale/aut/test/ObjectWithPublicField.class";
+    @Test(expected = AssertionError.class)
+    public void shouldThrowViolations() {
+        new NoPublicFieldRuleTest().execute(output.resolve("ObjectWithPublicField.class"), testOutput);
+    }
 
-	@Test(expected = AssertionError.class)
-	public void shouldThrowViolations() {
-
-		new NoPublicFieldRuleTest().execute(pathObjectWithPublicField);
-
-	}
-
-	@Test
-	public void shouldNotThrowAnyViolation_even_with_publicStaticFinaField() {
-
-		assertThatCode(() -> new NoPublicFieldRuleTest().execute(pathObjectWithNoPublicField))
-				.doesNotThrowAnyException();
-
-	}
-
+    @Test
+    public void shouldNotThrowAnyViolation_even_with_publicStaticFinaField() {
+        assertThatCode(() -> new NoPublicFieldRuleTest().execute(output.resolve("ObjectWithNoNonStaticPublicField.class"), testOutput))
+                .doesNotThrowAnyException();
+    }
 }

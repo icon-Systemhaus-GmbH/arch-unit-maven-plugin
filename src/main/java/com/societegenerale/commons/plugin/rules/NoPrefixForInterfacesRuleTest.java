@@ -6,6 +6,8 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import java.nio.file.Path;
+
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 
@@ -21,9 +23,9 @@ public class NoPrefixForInterfacesRuleTest implements ArchRuleTest {
   private static Character upperCaseI = 'I';
 
   @Override
-  public void execute(String path) {
+  public void execute(Path output, Path testOutput) {
 
-    classes().that().areInterfaces().should(notBePrefixed()).check(ArchUtils.importAllClassesInPackage(path, SRC_CLASSES_FOLDER));
+    classes().that().areInterfaces().should(notBePrefixed()).check(ArchUtils.importAllClassesInPackage(output));
 
   }
 

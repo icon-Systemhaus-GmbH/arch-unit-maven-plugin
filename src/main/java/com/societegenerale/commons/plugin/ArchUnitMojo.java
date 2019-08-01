@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoFailureException;
+import org.apache.maven.plugins.annotations.Component;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
@@ -17,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +57,7 @@ public class ArchUnitMojo extends AbstractMojo {
     @Parameter(property = "rules")
     private Rules rules;
 
-    @Parameter(defaultValue = "${project}", required = true, readonly = true)
+    @Component
     private MavenProject mavenProject;
 
     public Rules getRules() {
@@ -106,14 +108,16 @@ public class ArchUnitMojo extends AbstractMojo {
     private String invokeRules() {
 
         StringBuilder errorListBuilder = new StringBuilder();
+        Path outputDirectory = mavenProject.getBasedir().toPath().resolve(mavenProject.getBuild().getOutputDirectory());
+        Path testOutputDirectory = mavenProject.getBasedir().toPath().resolve(mavenProject.getBuild().getTestOutputDirectory());
 
         for (String rule : rules.getPreConfiguredRules()) {
-            String errorMessage = ruleInvokerService.invokePreConfiguredRule(rule, projectPath);
+            String errorMessage = ruleInvokerService.invokePreConfiguredRule(rule, outputDirectory, testOutputDirectory);
             errorListBuilder.append(prepareErrorMessageForRuleFailures(rule, errorMessage));
         }
 
         for (ConfigurableRule rule : rules.getConfigurableRules()) {
-            String errorMessage = ruleInvokerService.invokeConfigurableRules(rule, projectPath);
+            String errorMessage = ruleInvokerService.invokeConfigurableRules(rule, outputDirectory, testOutputDirectory);
             errorListBuilder.append(prepareErrorMessageForRuleFailures(rule.getRule(), errorMessage));
         }
 

@@ -9,6 +9,8 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import java.nio.file.Path;
+
 /**
  * java.util.Date is deprecated but a lot of people still use it out of years of
  * habit. This rule will catch such instances and remind developers they should
@@ -35,8 +37,8 @@ public class NoJavaUtilDateRuleTest implements ArchRuleTest {
 	protected static final String NO_JAVA_UTIL_DATE_VIOLATION_MESSAGE = "Use Java8 java.time or java.util.GregorianCalendar or java.text.DateFormat  to parse and format dates instead of java.util.Date library because they  support internationalization better";
 
 	@Override
-	public void execute(String path) {
-		classes().should(notUseJavaUtilDate()).check(ArchUtils.importAllClassesInPackage(path, SRC_CLASSES_FOLDER));
+	public void execute(Path output, Path testOutput) {
+		classes().should(notUseJavaUtilDate()).check(ArchUtils.importAllClassesInPackage(output));
 	}
 
 	protected static ArchCondition<JavaClass> notUseJavaUtilDate() {

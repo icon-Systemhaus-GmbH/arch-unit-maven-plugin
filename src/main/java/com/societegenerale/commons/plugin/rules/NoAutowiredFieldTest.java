@@ -6,6 +6,8 @@ import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
+import java.nio.file.Path;
+
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.fields;
 
 /**
@@ -16,9 +18,9 @@ public class NoAutowiredFieldTest implements ArchRuleTest  {
     protected static final String NO_AUTOWIRED_FIELD_MESSAGE = "Favor constructor injection and avoid autowiring fields - ";
 
     @Override
-    public void execute(String path) {
+    public void execute(Path output, Path testOutput) {
 
-        fields().should(notBeAutowired()).check(ArchUtils.importAllClassesInPackage(path, SRC_CLASSES_FOLDER));
+        fields().should(notBeAutowired()).check(ArchUtils.importAllClassesInPackage(output));
     }
 
     protected static ArchCondition<JavaField> notBeAutowired() {

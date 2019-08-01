@@ -1,15 +1,16 @@
 package com.societegenerale.commons.plugin.service;
 
-import java.lang.reflect.Method;
-
 import com.societegenerale.commons.plugin.model.ConfigurableRule;
 import com.societegenerale.commons.plugin.service.InvokableRules.InvocationResult;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static com.societegenerale.commons.plugin.rules.ArchRuleTest.SRC_CLASSES_FOLDER;
-import static com.societegenerale.commons.plugin.rules.ArchRuleTest.TEST_CLASSES_FOLDER;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
 import static com.societegenerale.commons.plugin.utils.ArchUtils.importAllClassesInPackage;
 import static com.societegenerale.commons.plugin.utils.ReflectionUtils.loadClassWithContextClassLoader;
 
@@ -18,21 +19,21 @@ public class RuleInvokerService {
 
     private static final String EXECUTE_METHOD_NAME = "execute";
 
-    public String invokePreConfiguredRule(String ruleClassName, String projectPath) {
+    public String invokePreConfiguredRule(String ruleClassName, Path output, Path testOutput) {
         Class<?> ruleClass = loadClassWithContextClassLoader(ruleClassName);
 
         String errorMessage = "";
         try {
-            Method method = ruleClass.getDeclaredMethod(EXECUTE_METHOD_NAME, String.class);
-            method.invoke(ruleClass.newInstance(), projectPath);
+            Method method = ruleClass.getDeclaredMethod(EXECUTE_METHOD_NAME, Path.class, Path.class);
+            method.invoke(ruleClass.newInstance(), output, testOutput);
         } catch (ReflectiveOperationException re) {
             errorMessage = re.getCause().toString();
         }
         return errorMessage;
     }
 
-    public String invokeConfigurableRules(ConfigurableRule rule, String projectPath) {
-        if(rule.isSkip()) {
+    public String invokeConfigurableRules(ConfigurableRule rule, Path output, Path testOutput) {
+        if (rule.isSkip()) {
             LOGGER.info("Skipping rule {}", rule.getRule());
             return "";
         }
@@ -40,24 +41,34 @@ public class RuleInvokerService {
         InvokableRules invokableRules = InvokableRules.of(rule.getRule(), rule.getChecks());
 
         String packageOnRuleToApply = getPackageNameOnWhichToApplyRules(rule);
-        JavaClasses classes = importAllClassesInPackage(projectPath, packageOnRuleToApply);
+        List<Path> paths = filterAppliedPaths(rule, output, testOutput, packageOnRuleToApply);
+        JavaClasses classes = importAllClassesInPackage(paths);
 
         InvocationResult result = invokableRules.invokeOn(classes);
         return result.getMessage();
     }
 
-    private String getPackageNameOnWhichToApplyRules(ConfigurableRule rule) {
-
-        StringBuilder packageNameBuilder = new StringBuilder(SRC_CLASSES_FOLDER);
+    private List<Path> filterAppliedPaths(ConfigurableRule rule, Path output, Path testOutput, String packageOnRuleToApply) {
+        List<Path> result = new ArrayList<>(1);
 
         if (rule.getApplyOn() != null) {
             if (rule.getApplyOn().getScope() != null && "test".equals(rule.getApplyOn().getScope())) {
-                packageNameBuilder = new StringBuilder(TEST_CLASSES_FOLDER);
+                result.add(testOutput.resolve(packageOnRuleToApply));
             }
+        }
+        if (result.isEmpty()) {
+            result.add(output.resolve(packageOnRuleToApply));
+        }
+        return result;
+    }
+
+    private String getPackageNameOnWhichToApplyRules(ConfigurableRule rule) {
+
+        StringBuilder packageNameBuilder = new StringBuilder();
+        if (rule.getApplyOn() != null) {
             if (rule.getApplyOn().getPackageName() != null) {
                 packageNameBuilder.append("/").append(rule.getApplyOn().getPackageName());
             }
-
         }
         return packageNameBuilder.toString().replace(".", "/");
     }
